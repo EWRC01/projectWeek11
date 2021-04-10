@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Article;
 
 class ArticleController extends Controller
 {
@@ -14,7 +15,8 @@ class ArticleController extends Controller
     public function index()
     {
         //
-        return view('article.index'); //Retornamos la vista de el index del Articulo
+        $data['articles']=Article::paginate(5);
+        return view('article.index', $data); //Retornamos la vista de el index del Articulo
     }
 
     /**
@@ -38,6 +40,10 @@ class ArticleController extends Controller
     public function store(Request $request)
     {
         //
+
+        $articleData = request()->except('_token');
+        Article::insert($articleData);
+        return response()->json($articleData);
     }
 
     /**
@@ -60,7 +66,8 @@ class ArticleController extends Controller
     public function edit($id)
     {
         //
-        return view('article.edit');
+       $article=ARTICLE::findOrFail($id);
+       return view('article.edit', compact('article'));
     }
 
     /**
@@ -73,6 +80,9 @@ class ArticleController extends Controller
     public function update(Request $request, $id)
     {
         //
+        $articleData=request()->except(['_token', '_method']);
+        Article::where('id', '=', $id) -> update($articleData);
+        return redirect('article');
     }
 
     /**
@@ -84,5 +94,7 @@ class ArticleController extends Controller
     public function destroy($id)
     {
         //
+        Article::destroy($id);
+        return redirect('article');
     }
 }
